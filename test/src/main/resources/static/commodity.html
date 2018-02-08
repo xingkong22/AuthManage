@@ -1,0 +1,177 @@
+<h1>商品管理</h1>
+<div id="commodity_grid"></div>
+<div id="window_commodity_add" class="easyui-window" data-options="title:'添加商品',modal:true,closed:true" style="display:flex;justify-content:center;flex-flow:column;width:100%;height:600px" >
+    <form id="form_commodity_add">
+        <input type="hidden" name="ids"/>
+        <input type="hidden" name="sku"/>
+        <div style="margin-bottom: 20px">
+            名称:
+            <input name="name" class="easyui-textbox" />
+        </div>
+        <div style="margin-bottom: 20px">
+            价格:<input name="price" class="easyui-textbox"/>
+        </div>
+        <div style="margin-bottom: 20px">
+            类别:<input id="categoryid" name="categoryid"   style="width:200px"/>
+        </div>
+        <div style="margin-bottom: 20px">
+            图片:<input name="f1" class="easyui-filebox"/>
+        </div>
+
+    </form>
+    商品描述:
+    <textarea name="commdesc" rows="3" style="width: 100%;height: 250px"></textarea>
+
+    <div>
+        <button onclick="saveCommodity()" style="width:80%;height:50px" class="easyui-linkbutton">保存</button>
+    </div>
+</div>
+    <script>
+        function commodityinit() {
+            $("#commodity_grid").datagrid({
+                title:"商品管理",
+                url:"commodity/showAllCommodity",
+                method:"get",
+
+               columns:[[
+                   {field:"sku",title:"编号",checkbox:true},
+                   {field:"name",title:"名称",width:100},
+                   {field:"price",title:"价格",width:100},
+                   {field:"categoryName",title:"类别",width:100},
+                   {field:"commdesc",title:"简介",width:100}
+               ]] ,
+                toolbar:[
+                    {text:"添加",iconCls:"icon-add",handler:function(){toAddCommodity();}},
+                    {text:"删除",iconCls:"icon-remove",handler:function () {deleteCommodity();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function () {toEditCommodity();}},
+                    {text:"上架",iconCls:"icon-search",handler:function () {shangjia();}}
+                ]
+            });
+            //初始化富文本编辑器
+            CKEDITOR.replace("commdesc");
+        }
+        $(commodityinit);
+        function toAddCommodity() {
+            $("#categoryid").combotreegrid({
+               idField:"id",
+               treeField:"text",
+
+                columns:[[
+                    {field:"id",title:"id",width:97},
+                    {field:"text",title:"名称",width:100}
+                ]]
+            });
+
+            $.get("showAllCategory",function (data) {
+                var o = {rows:data};
+                var x = JSON.stringify(o);
+
+                var p = /"_parentId":0/g;
+                var a = x.replace(p,"\"root\":0");
+                var y = JSON.parse(a);
+                //alert(a);
+                $("#categoryid").combotreegrid("grid").treegrid("loadData",y);
+
+            });
+
+            $("#window_commodity_add").form("clear");
+            $("#window_commodity_add").form("load");
+            $("#window_commodity_add").window("open");
+
+        }
+        function toEditCommodity() {
+            var a = $("#commodity_grid").datagrid("getSelected");
+            alert(a.sku);
+            $("#categoryid").combotreegrid({
+                idField:"id",
+                treeField:"text",
+
+                columns:[[
+                    {field:"id",title:"id",width:97},
+                    {field:"text",title:"名称",width:100}
+                ]]
+            });
+            $.get("showAllCategory",function (data) {
+                var o = {rows:data};
+                var x = JSON.stringify(o);
+
+                var p = /"_parentId":0/g;
+                var a = x.replace(p,"\"root\":0");
+                var y = JSON.parse(a);
+                //alert(a);
+                $("#categoryid").combotreegrid("grid").treegrid("loadData",y);
+
+            });
+            $("#window_commodity_add").window("open");
+
+            $("#form_commodity_add").form("load",{
+                sku:a.sku,
+                ids:0,
+                name:a.name,
+                price:a.price,
+                f1:a.f1,
+                commdesc:a.commdesc
+            });
+
+        }
+        function saveCommodity() {
+
+            //用于包装含有流文件的数据
+            var fdata = new FormData(document.getElementById("form_commodity_add"));
+            var x = CKEDITOR.instances.commdesc.getData();
+            fdata.append("commdesc",x);
+            $.ajax({
+                url:"commodity/addCommodity",
+                method:"post",
+                data:fdata,
+                contentType:false,
+                processData:false,
+                success:function (d) {
+                    alert(d);
+                    $("#commodity_grid").datagrid("reload");
+                    $("#window_commodity_add").window("close");
+                }
+            });
+
+        }
+        function shangjia() {
+            var commodity = $("#commodity_grid").datagrid("getSelected");
+            $.get("commodity/shangJiaCommodity/" + commodity.sku,function (d) {
+                alert(d);
+            });
+        }
+        function deleteCommodity() {
+            //获取选择的商品
+            var data = $("#commodity_grid").datagrid("getSelections");
+            if (data != null) {
+                //定义数组
+                var ss = [];
+                //循环遍历选择的商品。把选择商品的id(sku)赋给数组
+                for (var i = 0; i < data.length; i++) {
+                    alert(data[i].sku);
+                    ss[i] = data[i].sku;
+                }
+                //把数组中的数据(sku)转成JSON字符串
+                var x = JSON.stringify(ss);
+
+                $.ajax({
+                    url:"commodity/delete",
+                    method:"post",
+                    data:x,
+                    contentType:"application/json",
+                    success:function (d) {
+                        $("#commodity_grid").datagrid("reload");
+                    }
+                });
+            } else {
+                $.messager.alert("系统提示","请选择要删除的商品");
+            }
+
+        }
+
+
+
+
+    </script>
+
+

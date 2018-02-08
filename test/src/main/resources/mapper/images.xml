@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydx.test.dao.ImagesDao">
+
+    <insert id="saveImages" parameterType="map">
+        INSERT into images values(#{id},#{name},#{owner})
+    </insert>
+
+    <delete id="deleteImages" parameterType="list">
+        delete from images where owner IN
+        <foreach collection="list" item="x" open="(" separator="," close=")">
+            #{x}
+        </foreach>
+    </delete>
+    <update id="updateImage" parameterType="map">
+        update images set name=#{ImageName} where owner=#{owner}
+    </update>
+
+</mapper>

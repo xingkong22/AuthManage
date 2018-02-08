@@ -1,0 +1,117 @@
+<h1>资源管理</h1>
+<div id="reource" data-options="checkbox:true"></div>
+<div id="window_reource_add" class="easyui-window" data-options="title:'添加资源',modal:true,closed:true" style="display: flex;justify-content: center;flex-flow: column;width: 300px;height: 400px">
+    <form id="form_reource_add" action="saveReource">
+        <input type="hidden" name="ids"/>
+
+        <div style="margin-bottom: 20px">
+            请选择资源选项: <input name="parentId" class="easyui-combobox" data-options="url:'showAllResource3',method:'get',valueField:'id',textField:'text'"/>
+        </div>
+
+        <div style="margin-bottom: 20px">
+            请输入添加的资源: <input type="text" name="text" class="easyui-textbox"/>
+        </div>
+        <div style="margin-bottom: 20px">
+            请输入资源的地址: <input type="text" name="url" class="easyui-textbox"/>
+        </div>
+
+    </form>
+    <div>
+        <button onclick="saveReource()" style="width:80%;height:50px" class="easyui-linkbutton">保存</button>
+    </div>
+</div>
+    <script>
+        function reourceinit() {
+            $("#reource").treegrid({
+                idField:"id",
+                treeField:"text",
+                urlField:"url",
+                checkbox:"true",
+                lines:"false",
+                dnd:"true",
+                //指定表格的列;field:指定填充数据的key
+                columns:[[
+                    {field:"id",title:"序号",checkbox:true},
+                    {field:"text",title:"资源",width:180},
+                    {field:"url",title:"地址",width:100}
+                ]],
+                toolbar:[
+                    {text:"添加",iconCls:"icon-add",handler:function(){toAddReource();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function () {toEditReource();}},
+                    {text:"删除",iconCls:"icon-remove",handler:function(){deleteReource();}}
+                ]
+
+            });
+            reourceLoad();
+        }
+        function reourceLoad() {
+            $.get("showAllReource2",function (data) {
+                var a = {rows:data};
+                var b = JSON.stringify(a);
+
+                var c = /"_parentId":0/g;
+
+                var d = b.replace(c,"\"root\":0");
+                var e = JSON.parse(d);
+                alert(d);
+               $("#reource").treegrid("loadData",e);
+            });
+        }
+        $(reourceinit);
+
+        function deleteReource() {
+            var a = $("#reource").datagrid("getSelected");
+            alert(a.id);
+
+            var b = JSON.stringify(a.id);
+            alert(b);
+            $.ajax({
+                url:"deleteResource",
+                method:"post",
+                data:b,
+                contentType:"application/json",
+                success:function (d) {
+                    alert(d);
+                    $("#reource").treegrid("reload");
+                }
+            });
+
+        }
+
+        function toEditReource() {
+            var a = $("#reource").datagrid("getSelected");
+            alert(a.id);
+
+            if (a) {
+                $("#form_reource_add").form("load",{
+                    id:a.id,
+                    parentId:a.texts,
+                    text:a.text,
+                    url:a.url
+
+                });
+                    $("#window_reource_add").window("open");
+            } else {
+                $.messager.alert("系统提示","请选择要修改的资源");
+            }
+        }
+
+        function toAddReource() {
+            $("#form_reource_add").form("clear");
+            $("#form_reource_add").form("load",{
+               ids:0
+            });
+            $("#window_reource_add").window("open");
+        }
+        function saveReource() {
+            $("#form_reource_add").form("submit",{
+                success:function (d) {
+                    $("#reource").treegrid("reload");
+                    $("#window_reource_add").window("close");
+                }
+            });
+        }
+
+    </script>
+
+

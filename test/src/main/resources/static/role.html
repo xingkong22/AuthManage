@@ -1,0 +1,142 @@
+<h1>第二个例子</h1>
+<div id="second"></div>
+<div id="window_role_add" class="easyui-window" data-options="title:'添加角色',modal:true,closed:true" style="display:flex;justify-content:center;flex-flow:column;width:300px;height:400px" >
+    <form id="form_role_add" action="saveRole">
+        <input type="hidden" name="id"/>
+        <div style="margin-bottom: 20px">
+            角色: <input type="text" name="name" class="easyui-textbox"/>
+        </div>
+    </form>
+    <div>
+        <button onclick="saveRole()" style="width:80%;height:50px" class="easyui-linkbutton">保存</button>
+    </div>
+</div>
+<div id="window_role_fenPei" class="easyui-window" data-options="title:'分配权限',modal:true,closed:true" style="display:flex;justify-content:center;flex-flow:column;width:300px;height:400px">
+    <ul class="easyui-tree" id="role_res_tree" data-options="url:'findAllResForFP',method:'get',checkbox:true">
+
+    </ul>
+    <div>
+        <button onclick="doFP()" class="easyui-linkbutton" >分配</button>
+    </div>
+</div>
+    <script>
+        function roleinit() {
+            $("#second").datagrid({
+               title:"角色管理",
+                pagination:true,
+               // url:"showAllRole",
+               // method:"get",
+               columns:[[
+                   {field:"id",title:"序号",checkbox:true},
+                   {field:"name",title:"角色",width:100}
+               ]] ,
+                toolbar:[
+                    {text:"添加",iconCls:"icon-add",handler:function(){toAddRole();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function(){toEditRole();}},
+                    {text:"删除",iconCls:"icon-remove",handler:function(){deleteRole();}},
+                    {text:"分配权限",iconCls:"icon-search",handler:function(){fenPei();}}
+                ]
+            });
+            rolefill(1,3);
+        }
+        function rolefill(page,size) {
+            $.get("showAllRole",{page:page,size:size},function (data) {
+                $("#second").datagrid("loadData",data);
+                var p = $("#second").datagrid("getPager");
+                p.pagination({
+                   total:10,
+                    pageList:[2,3,4],
+                    pageNumber:page,
+                    pageSize:size,
+                    onSelectPage:function (a,b) {
+                        rolefill(a,b);
+                    }
+                });
+            });
+        }
+        roleinit();
+        function fenPei() {
+            $("#window_role_fenPei").window("open");
+        }
+
+        function doFP() {
+            var role = $("#second").datagrid("getSelected");
+            var rs = $("#role_res_tree").tree("getChecked");
+
+            var temp = [role.id];
+            alert("角色:" + role.id);
+            for (var i = 0; i < rs.length; i++) {
+                alert("选择的:" + rs[i].id);
+            }
+
+            alert("选择的个数:" + rs.length);
+
+            for (var i = 0; i < rs.length; i++) {
+                temp[i + 1] = rs[i].id;
+            }
+
+            var xx = JSON.stringify(temp);
+            $.ajax({
+                url:"doFP",
+                method:"post",
+                data:xx,
+                contentType:"application/json",
+                success:function (d) {
+                    alert("回调函数:" + d);
+                    $("#second").datagrid("reload");
+                    $("#window_role_fenPei").window("close");
+                }
+            });
+        }
+        function deleteRole() {
+            var data = $("#second").datagrid("getSelections");
+                var ss = [];
+                for (var i = 0; i < data.length; i++) {
+                    ss[i] = data[i].id;
+                    alert(data[1].id);
+                }
+                var xx = JSON.stringify(ss);
+
+                $.ajax({
+                    url:"deleteRole",
+                    method:"post",
+                    data:xx,
+                    contentType:"application/json",
+                    success:function (d) {
+                        alert(d);
+                        $("#second").datagrid("reload");
+                    }
+                });
+        }
+        function toAddRole() {
+            $("#form_role_add").form("clear");
+            $("#form_role_add").form("load",{
+               id:0
+            });
+            $("#window_role_add").window("open");
+        }
+        function saveRole() {
+            $("#form_role_add").form("submit",{
+               success:function (d) {
+                   $("#second").datagrid("reload");
+                   $("#window_role_add").window("close");
+               }
+            });
+        }
+        function toEditRole() {
+            var role = $("#second").datagrid("getSelected");
+            if (role) {
+                $("#window_role_add").window("open");
+                $("#form_role_add").form("load",{
+                   id:role.id,
+                   name:role.name
+                });
+
+            }else {
+                $.messager.alert("系统提示","请选择要修改的角色");
+            }
+        }
+    </script>
+
+
+

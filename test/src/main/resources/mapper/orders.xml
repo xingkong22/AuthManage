@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydx.test.dao.OrdersDao">
+    <select id="selectTotal" resultType="map">
+        select MONTH(createTime) as month,SUM(total) as total from orders GROUP BY MONTH(createTime)
+    </select>
+
+</mapper>

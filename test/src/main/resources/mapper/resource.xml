@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydx.test.dao.ResourceDao">
+    <resultMap id="m1" type="com.ydx.test.pojo.Resource">
+        <result property="text" column="text"></result>
+        <result property="id" column="a_id"></result>
+        <collection property="children" javaType="com.ydx.test.pojo.Resource">
+            <result property="text" column="s_text"></result>
+            <result property="url" column="s_url"></result>
+            <result property="id" column="b_id"></result>
+        </collection>
+    </resultMap>
+
+    <select id="showAllReource" resultMap="m1" resultType="com.ydx.test.pojo.Resource">
+        select a.text,b.text as s_text,b.url as s_url from resource a
+          left join resource b on b.parentId=a.id
+          LEFT JOIN ranges rr on a.id=rr.resid
+          LEFT JOIN user_role ur on rr.rolid=ur.rid where ur.uid=#{id} and a.parentId=0
+    </select>
+
+    <select id="findAllResForFP" resultMap="m1">
+        select a.id as a_id,b.id as b_id,a.text,b.text as s_text from resource a
+          left join resource b on b.parentId=a.id where a.parentId='0'
+    </select>
+
+    <select id="showAllReource2" resultType="com.ydx.test.pojo.Resource">
+        SELECT r.id,r.text,r.url,r.parentId,rr.text as texts from resource r
+        LEFT JOIN resource rr on r.parentId=rr.id
+    </select>
+
+    <delete id="deleteResource">
+        delete FROM resource where id=#{id}
+    </delete>
+
+    <select id="showAllResource3" resultType="com.ydx.test.pojo.Resource">
+        SELECT id,text FROM resource where parentId=0
+    </select>
+
+    <insert id="saveReource" parameterType="com.ydx.test.pojo.Resource">
+        INSERT into resource(text,url,parentId) VALUES(#{text},#{url},#{parentId})
+    </insert>
+
+    <update id="updateReource" parameterType="com.ydx.test.pojo.Resource">
+        update resource set text=#{text},url=${url} where id=#{id}
+    </update>
+</mapper>

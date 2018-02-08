@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydx.test.dao.RoleDao">
+    <select id="showAllRole" resultType="com.ydx.test.pojo.Role" parameterType="map">
+        select * from role limit #{start},#{size}
+    </select>
+
+    <insert id="doFP" parameterType="map">
+        insert into ranges VALUES
+        <foreach collection="ids" item="x" separator=",">
+            (#{roleid},#{x})
+        </foreach>
+    </insert>
+    
+    <delete id="deleteByRoleid" parameterType="map">
+        delete from ranges where rolid=#{roleid}
+    </delete>
+
+    <select id="showAllRoles" resultType="com.ydx.test.pojo.Role">
+        select * from role
+    </select>
+    <delete id="deleteRole" parameterType="list">
+        delete from role where id IN
+        <foreach collection="list" item="xx" open="(" separator="," close=")">
+            #{xx}
+        </foreach>
+    </delete>
+
+    <insert id="saveRole" parameterType="com.ydx.test.pojo.Role">
+        insert into role VALUES (#{id},#{name})
+    </insert>
+    <update id="updateRole" parameterType="com.ydx.test.pojo.Role">
+        update role set name=#{name} where id=#{id}
+    </update>
+</mapper>

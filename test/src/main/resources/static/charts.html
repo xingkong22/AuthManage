@@ -1,0 +1,31 @@
+<h1>数据统计</h1>
+
+    <script src="js/echarts.js"></script>
+    <script>
+        function bar2() {
+            var chart = echarts.init(document.getElementById("map"));
+            var a = [];
+            var b = [];
+            $.get("selectTotal",function (d) {
+                for (var i = 0; i < d.length; i++) {
+                    a[i] = d[i].total;
+                    b[i] = d[i].month;
+                    //alert(a[i]);
+                    //alert(b[i]);
+                }
+                var option = {
+                    xAxis: {
+                        data:b
+                    },
+                    yAxis:{},
+                    series:{
+                        type:"bar",
+                        data:a
+                    }
+                };
+                chart.setOption(option);
+            });
+        }
+    </script>
+<div id="map" style="width: 400px;height: 400px"></div>
+<button onclick="bar2()">每月销售额</button>

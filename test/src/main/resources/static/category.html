@@ -1,0 +1,68 @@
+<h1>类别管理</h1>
+<div id="category" data-options="checkbox:true">
+</div>
+    <script>
+        function categoryinit() {
+            $("#category").treegrid({
+                idField:"id",
+                treeField:"text",
+                checkbox:"true",
+                lines:"false",
+                dnd:"true",
+                columns:[[
+                    {field:"id",title:"序号",checkbox:true},
+                    {field:"text",title:"名称",width:180}
+                ]],
+                toolbar:[
+                    {text:"删除",iconCls:"icon-remove",handler:function () {deleteCate();}},
+                    {text:"添加",iconCls:"icon-add",handler:function () {toAddCate();}},
+                    {text:"修改",iconCls:"icon-edit",handler:function () {toEditCate();}},
+                    {text:"刷新",iconCls:"icon-reload",handler:function () {toReload();}}
+                ]
+            });
+            categoryLoad();
+        }
+
+        function categoryLoad() {
+            $.get("showAllCategory",function (data) {
+                var o = {rows:data};
+                var x = JSON.stringify(o);
+
+                //正则表达式 g 就是global 全局的意思
+                var p = /"_parentId":0/g;
+
+                // _parentId:0 全部转换成 root:0
+                var a = x.replace(p,"\"root\":0");
+                var y = JSON.parse(a);
+                alert(a);
+
+                $("#category").treegrid("loadData",y);
+            });
+        }
+        $(categoryinit);
+        function deleteCate() {
+            var a = $("#category").datagrid("getSelected");
+            alert(a.root);//当是父节点的时候 root有值 是0
+            alert(a.id);//有值
+
+
+            var x = JSON.stringify(a.root);
+            var y = JSON.stringify(a.id);
+            alert(x);
+            $.ajax({
+               url:"deleteCategory",
+                method:"post",
+                data:y,
+                contentType:"application/json",
+                success:function (d) {
+                   alert(d);
+                   $("#category").treegrid("reload");
+                }
+            });
+        }
+
+    </script>
+
+
+
+

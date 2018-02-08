@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/icon.css" />
+    <link rel="stylesheet" href="css/easyui.css" />
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <script src="js/jquery.js"></script>
+    <script src="js/easyui.js"></script>
+    <script src="js/easyui-lang-zh_CN.js"></script>
+    <script src="js/ckeditor/ckeditor.js"></script>
+    <script src="js/echarts.js"></script>
+    <script>
+        function init() {
+            $("#main_left_menu").tree({
+               onClick:function (node) {
+                   if (node.url) {
+                       var had = $("#main_work").tabs("exists",node.text);
+                       if (had) {
+                           $("#main_work").tabs("select",node.text);
+                       }else {
+                           $("#main_work").tabs("add",{
+                               title:node.text,
+                               closable:true,
+                               href:node.url
+                           });
+                       }
+
+                   }
+
+               }
+            });
+        }
+        $(init);
+    </script>
+</head>
+<body>
+    <div class="easyui-layout" style="width: 100%;height: 700px">
+        <div data-options="region:'north'" style="width: 100%;height: 100px;background-color: #c4c4c4"></div>
+        <div data-options="region:'west'" style="width: 20%;height: 100%;background-color: #7fffd4">
+            <ul id="main_left_menu" class="easyui-tree" data-options="url:'showAllReource'">
+                <!--<li><span>系统管理</span>-->
+                    <!--<ul>-->
+                        <!--<li>用户管理</li>-->
+                        <!--<li>角色管理</li>-->
+                    <!--</ul>-->
+                <!--</li>-->
+                <!--<li><span>订单管理</span>-->
+                    <!--<ul>-->
+                        <!--<li>发货管理</li>-->
+                        <!--<li>退货管理</li>-->
+                    <!--</ul>-->
+                <!--</li>-->
+            </ul>
+        </div>
+        <div id="main_work" class="easyui-tabs" data-options="region:'center'" style="background-color: #00bbee"></div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydx.test.dao.UsersDao">
+
+    <select id="login" resultType="com.ydx.test.pojo.Users">
+        select * from users where username=#{username} and password=#{password}
+    </select>
+    <select id="showAllUsers" resultType="com.ydx.test.pojo.Users" parameterType="map">
+        select u.*,r.name as roleName from users u left join user_role ur on u.id=ur.uid
+        left join role r on ur.rid= r.id limit #{start},#{size}
+    </select>
+
+    <select id="selectCount" resultType="Integer">
+        select count(*) from users
+    </select>
+    
+    <select id="searchUser" resultType="com.ydx.test.pojo.Users" parameterType="map">
+        SELECT u.username,u.password,r.name as roleName from users u LEFT JOIN user_role uu ON
+        u.id=uu.uid LEFT JOIN role r on uu.rid=r.id where u.username=#{username}
+    </select>
+
+    <select id="searchUser2" resultType="com.ydx.test.pojo.Users" parameterType="map">
+        SELECT u.username,u.password,r.name as roleName from users u LEFT JOIN user_role uu ON
+        u.id=uu.uid LEFT JOIN role r on uu.rid=r.id where r.name=#{name}
+    </select>
+    
+    <delete id="deleteUserById">
+        delete from users where id=#{id}
+    </delete>
+    <delete id="deleteUserById2" parameterType="list">
+        delete from users where id IN
+        <foreach collection="list" item="xx" open="(" separator="," close=")">
+            #{xx}
+        </foreach>
+    </delete>
+    <insert id="saveUser" parameterType="com.ydx.test.pojo.Users">
+        insert into users(id,username,password) values(#{id},#{username},#{password})
+    </insert>
+    <insert id="saveUserRole" parameterType="com.ydx.test.pojo.Users">
+        INSERT  into user_role(uid,rid) VALUES (#{id},#{rrid})
+    </insert>
+
+    <update id="updateUserRole" parameterType="com.ydx.test.pojo.Users">
+        update user_role set rid=#{rrid} where uid=#{id}
+    </update>
+
+    <update id="updateUser" parameterType="com.ydx.test.pojo.Users">
+        update users set username=#{username},password=#{password} where id=#{id}
+    </update>
+
+
+</mapper>
