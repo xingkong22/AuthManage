@@ -8,6 +8,7 @@ public class FirstUtil {
     	//今天是2018年7月12日
     	//asdasdasd
     	//dfgdfhfghgfh
+    	//565656
         return UUID.randomUUID().toString().replaceAll("-","");
     }
 }
